@@ -1,0 +1,79 @@
+
+#--------------------------------------------------------------------
+# Target Hosts
+#--------------------------------------------------------------------
+# target_workstation: "houzbi-server-02"
+target_workstation: "192.168.20.34"
+target_nodes: "target_nodes"
+
+#--------------------------------------------------------------------
+# Google Cloud Project Configuration
+#--------------------------------------------------------------------
+gcp_project_id: "us-gcp-ame-con-sjsxu-npd-1"
+
+ansible_service_account: "connect-agent-svc-account"
+anthos_container_registry_service_account: "connect-register-svc-account"
+anthos_connect_agent_service_account: "connect-agent-svc-account"
+anthos_connect_register_service_account: "connect-register-svc-account"
+anthos_logging_monitoring_service_account: "logging-monitoring-svc-account"
+
+secret_manager_locations: "us-central1"
+
+
+#--------------------------------------------------------------------
+# "bmctl" Configuration
+#--------------------------------------------------------------------
+bmctl_version: "1.14.2"
+
+login_user: "root"
+
+# gcp_keys_dir: "{{ ansible_user_dir }}/.gcp_keys"
+gcp_keys_dir: "{{ ansible_user_dir }}"
+bmctl_workspace_dir: "{{ ansible_user_dir }}/bmctl-workspace"
+
+# Cluster name: The name the Anthos Cluster will be registered with on GCP
+# Cluster type. This can be:
+#   1) admin:      to create an admin cluster. This can later be used to create user clusters.
+#   2) user:       to create a user cluster. Requires an existing admin cluster.
+#   3) hybrid:     to create a hybrid cluster that runs admin cluster components and user workloads.
+#   4) standalone: to create a cluster that manages itself, runs user workloads, but does not manage other clusters.
+# Cluster profile. This can be:
+#   1) default: The default profile has limited resource requirements.
+#   2) edge:    The edge profile minimizes the resource consumption of Anthos clusters on bare metal. It is only available for standalone clusters.
+cluster_name: "k-poc"
+cluster_type: "standalone"
+cluster_profile: "edge"
+cluster_location: "us-central1"
+
+# Container Runtime specifies which container runtime to use for scheduling containers on nodes.
+# containerd and docker are supported.
+container_runtime: "containerd"
+
+#RBAC Variables
+KSA_NAME : "ksa-name"
+SECRET_NAME: "secret-name"
+VIEW_BINDING: "view-name"
+CLOUD_CONSOLE_READER_BINDING_NAME: "ccrb-name"
+
+#stackdriver modifcation
+enable_application: "enableGMPForApplications"
+enable_application_clfa: "enableCloudLoggingForApplications"
+enable_value: true
+
+#V Single Vlan IP"
+# cluster_vlan_ip: "10.100.0.29/24"
+
+#acm repo sync
+# your_github_username: Your GitHub username
+# your_github_personal_access_token: Your GitHub personal access token
+# gcp_project: Your GCP project ID
+# acm_repo: The name of your ACM repository
+# acm_repo_url: The SSH URL of your ACM repository
+# gcp_access_token: Your GCP access token
+
+
+# ssh_key_comment: "ansible_user@{{ inventory_hostname }}"
+# ssh_key_file: "~/.ssh/{{ ssh_key_comment }}"
+# acm_namespace: "config-management-system"
+# acm_repo: "git@github.com:Deloitte/acm-repo-main.git"
+# acm_branch: "dev-env"

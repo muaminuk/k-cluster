@@ -1,0 +1,6 @@
+---
+ntp_servers:
+  - time.google.com
+fallback_ntp_servers:
+  - time.cloudflare.com
+timezone: UTC

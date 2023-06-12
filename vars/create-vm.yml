@@ -1,0 +1,8 @@
+
+name_vm: testvmi
+terminationGracePeriodSeconds: 30
+memory: 1024M
+capacity: "2Gi"
+#cloud-config
+password: fedora
+chpasswd: { expire: False }

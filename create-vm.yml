@@ -1,0 +1,18 @@
+
+#--------------------------------------------------------------------
+# Playbook to Create VM
+#--------------------------------------------------------------------
+
+---
+
+- name: Create VM
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/erin.yml
+    - vars/create-vm.yml
+  roles:
+    - role: kubectl-create-vm
+  
+

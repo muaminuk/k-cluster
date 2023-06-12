@@ -1,0 +1,11 @@
+---
+# This playbook deletes Anthos Clusters and the Files
+- name: Generate Token to Login to cluster
+  hosts: "{{ target_nodes }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/erin.yml
+  roles:
+  - role: copy-kubectl-files
+  - role: kubectl-create-token
