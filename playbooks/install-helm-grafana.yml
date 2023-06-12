@@ -1,0 +1,17 @@
+
+#--------------------------------------------------------------------
+# Playbook to modify stackdriver object
+#--------------------------------------------------------------------
+
+---
+
+- name: Modify Stackdriver object
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/zbi-nc.yml
+  roles:
+    - role: install-helm
+    - role: install-grafana
+  

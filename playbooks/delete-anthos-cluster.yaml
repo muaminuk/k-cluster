@@ -1,0 +1,9 @@
+---
+# This playbook deletes Anthos Clusters and the Files  
+- name: delete anthos cluster
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  vars_files:
+    - vars/zbi-nc.yml
+  roles:
+  - role: bmctl-delete-cluster

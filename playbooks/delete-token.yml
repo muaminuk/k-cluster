@@ -1,0 +1,9 @@
+---
+# This playbook deletes SA, CR, CCRB
+- name: Generate Token to Login to cluster
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  vars_files:
+    - vars/zbi-nc.yml
+  roles:
+  - role: kubectl-delete-token

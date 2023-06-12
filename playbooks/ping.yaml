@@ -1,0 +1,7 @@
+---
+# This plabook pings target host
+- name: ping all host
+  hosts: target_workstation
+  remote_user: ami
+  roles:
+  - ping

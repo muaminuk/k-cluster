@@ -1,0 +1,19 @@
+
+#--------------------------------------------------------------------
+# Playbook to Create VM
+#--------------------------------------------------------------------
+
+---
+
+- name: Create VM
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    # - vars/anthos-multi.yml
+    - vars/zbi-nc.yml
+    - vars/create-vm.yml
+  roles:
+    - role: kubectl-create-vm
+  
+

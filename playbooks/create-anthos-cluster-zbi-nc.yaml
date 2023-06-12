@@ -1,0 +1,36 @@
+
+#--------------------------------------------------------------------
+# Playbook to Create Anthos Node-cntrol Cluster
+#--------------------------------------------------------------------
+
+---
+
+- name: Prepare and set-up Anthos Node-Controlplanes
+  hosts: "{{ target_nodes}}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/zbi-nc.yml
+    - vars/timesync.yml
+  roles:
+    - role: system-package-update
+    - role: disable-firewall
+    - role: setup-timesync
+    - role: setup-gcloud-sdk
+    - role: activate-gcloud-sdk
+    - role: setup-kubectl
+    - role: setup-bmctl
+    - role: setup-docker
+    - role: copy-service-account-keys
+
+
+- name: Setup the workstation
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  vars_files:
+    - vars/zbi-nc.yml
+  roles:
+    - role: check-cluster-registered
+    - role: bmctl-create-config
+    - role: bmctl-check-config
+    - role: bmctl-create-cluster

@@ -1,0 +1,18 @@
+
+#--------------------------------------------------------------------
+# Playbook to Create Enable Kubevirt
+#--------------------------------------------------------------------
+
+---
+
+- name: Enable kubevirt 
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/anthos-multi.yml
+    - vars/zbi-nc.yml
+  roles:
+    - role: enable-vmruntime
+  
+

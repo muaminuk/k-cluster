@@ -1,0 +1,10 @@
+
+[all]
+
+  [target_workstation]
+  192.168.20.34 ansible_user=root 
+
+  [target_nodes]
+  192.168.20.34 ansible_user=root 
+  192.168.20.35 ansible_user=root 
+  192.168.20.36 ansible_user=root 

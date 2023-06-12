@@ -1,0 +1,70 @@
+#--------------------------------------------------------------------
+# Playbook to Create Anthos Node-cntrol Cluster
+#--------------------------------------------------------------------
+---
+
+- name: Prepare and set-up Anthos on all nodes
+  hosts: "{{ target_nodes }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/btc.yml
+    - vars/timesync.yml
+  vars:
+    docker_version: "5:20.10.20~3-0~ubuntu-focal"
+  roles:
+    - role: ssh-configure
+    - role: system-package-update
+    - role: disable-firewall
+    - role: setup-timesync
+    - role: setup-gcloud-sdk
+    - role: activate-gcloud-sdk
+    - role: setup-bmctl
+    - role: setup-kubectl
+    # - role: remove-docker
+    - role: setup-docker
+    - role: copy-service-account-keys
+
+
+- name: Setup the workstation
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  vars_files:
+    - vars/btc.yml
+  roles:
+    - role: check-cluster-registered
+    # - role: vlan
+    - role: bmctl-create-config
+    - role: bmctl-check-config
+    - role: bmctl-create-cluster
+
+
+- name: Generate Token to Login to cluster
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  vars_files:
+    - vars/btc.yml
+  roles:
+    - role: copy-kubectl-files
+    - role: kubectl-create-token
+
+
+- name: Modify Stackdriver object
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/btc.yml
+  roles:
+    - role: modify-stackdriver
+
+
+# - name: Install Helm and Grafana
+#   hosts: "{{ target_workstation }}"
+#   remote_user: "{{ login_user }}"
+#   become: true
+#   vars_files:
+#     - vars/test-erin.yml
+#   roles:
+#     - role: install-helm
+#     - role: install-grafana

@@ -1,0 +1,10 @@
+---
+# This playbook deletes Anthos Clusters and the Files
+- name: Generate Token to Login to cluster
+  hosts: "{{ target_workstation }}"
+  remote_user: "{{ login_user }}"
+  vars_files:
+    - vars/zbi-nc.yml
+  roles:
+  - role: copy-kubectl-files
+  - role: kubectl-create-token

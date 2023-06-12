@@ -1,0 +1,11 @@
+---
+# This plabook pings target host
+- name: ping all host
+  hosts: "{{ target_nodes }}"
+  remote_user: "{{ login_user }}"
+  become: true
+  vars_files:
+    - vars/test-erin.yml
+    - vars/timesync.yml
+  roles:
+  - ping
