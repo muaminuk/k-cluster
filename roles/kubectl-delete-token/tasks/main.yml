@@ -1,0 +1,11 @@
+---
+- name: delete SA, CR, CRRB
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      kubectl delete serviceaccount {{KSA_NAME}} --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+      kubectl delete clusterrolebinding {{VIEW_BINDING}} --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+      kubectl delete clusterrolebinding {{CLOUD_CONSOLE_READER_BINDING_NAME}} --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+  args:
+    executable: /bin/bash
+

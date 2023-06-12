@@ -1,0 +1,9 @@
+---
+
+- name: Setup Google Cloud SDK for OS Family
+  ansible.builtin.include_tasks:
+    file: 'setup-gcloud-sdk-{{ ansible_os_family | lower }}.yml'
+    apply:
+      become: true
+
+

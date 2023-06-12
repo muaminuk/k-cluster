@@ -1,0 +1,35 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachineInstance
+metadata:
+  name: {{ name_vm }}
+spec:
+  terminationGracePeriodSeconds: {{ terminationGracePeriodSeconds }}
+  domain:
+    resources:
+      requests:
+        memory: {{ memory }}
+    devices:
+      disks:
+      - name: containerdisk
+        disk:
+          bus: virtio
+      - name: emptydisk
+        disk:
+          bus: virtio
+      - disk:
+          bus: virtio
+        name: cloudinitdisk
+  volumes:
+  - name: containerdisk
+    containerDisk:
+      image: kubevirt/fedora-cloud-container-disk-demo:latest
+  - name: emptydisk
+    emptyDisk:
+      capacity: {{ capacity }}
+  - name: cloudinitdisk
+    cloudInitNoCloud:
+      userData: |-
+        #cloud-config
+        password: {{ password }}
+        chpasswd: { expire: False }

@@ -1,0 +1,17 @@
+---
+
+- name: Add Google Cloud SDK Package Repository [RedHat / CentOS]
+  ansible.builtin.template:
+    src: google-cloud-sdk.repo.j2
+    dest: /etc/yum.repos.d/google-cloud-sdk.repo
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: Install Google Cloud SDK [RedHat / CentOS]
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - google-cloud-sdk

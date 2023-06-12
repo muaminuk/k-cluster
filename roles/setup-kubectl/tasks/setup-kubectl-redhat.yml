@@ -1,0 +1,8 @@
+---
+
+- name: Install "kubectl" [RedHat / CentOS]
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kubectl

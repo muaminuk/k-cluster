@@ -1,0 +1,16 @@
+---
+---
+# name: Update sshd_config file
+- name: Append PermitRootLogin and PasswordAuthentication to sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: '{{ item }}'
+    state: present
+  loop:
+    - 'PermitRootLogin yes'
+    - 'PasswordAuthentication yes'
+
+- name: Restart sshd
+  systemd:
+    name: sshd
+    state: restarted

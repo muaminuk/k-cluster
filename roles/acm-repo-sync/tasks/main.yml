@@ -1,0 +1,123 @@
+---
+- name: Generate SSH key
+  ansible.posix.ssh_keypair:
+    type: rsa
+    size: 4096
+    comment: "{{ ssh_key_comment }}"
+    path: "{{ ssh_key_file }}"
+    state: present
+
+- name: Start ssh-agent and add SSH key
+  shell: |
+    eval "$(ssh-agent -s)"
+    ssh-add {{ ssh_key_file }}
+
+- name: Copy SSH public key to clipboard
+  ansible.builtin.shell: cat "{{ ssh_key_file }}.pub"
+  register: ssh_public_key
+
+- name: Print SSH public key for GitHub
+  ansible.builtin.debug:
+    var: ssh_public_key.stdout_lines
+  when: ssh_public_key.stdout_lines is defined
+
+- name: Add SSH public key to GitHub
+  uri:
+    url: "https://api.github.com/user/keys"
+    method: POST
+    user: "{{ github_username }}"
+    password: "{{ github_personal_access_token }}"
+    body_format: json
+    body:
+      title: "{{ ssh_key_comment }}"
+      key: "{{ ssh_public_key.stdout }}"
+    headers:
+      Content-Type: "application/json"
+
+  when: ssh_public_key.stdout is defined
+- name: Create ACM namespace
+  kubernetes.core_v1_namespace:
+    name: "{{ acm_namespace }}"
+    state: present
+
+- name: Create Git credentials secret
+  kubernetes.core_v1_secret:
+    name: "git-creds"
+    namespace: "{{ acm_namespace }}"
+    data:
+      ssh: "{{ lookup('file', ssh_key_file) }}"
+    state: present
+
+- name: Configure ACM to use Git repository
+  acm_git_repo:
+    name: "my-git-repo"
+    spec:
+      repo: "{{ acm_repo }}"
+      branch: "{{ acm_branch }}"
+      sshAuthSecret:
+        name: "git-creds"
+        namespace: "{{ acm_namespace }}"
+  register: acm_git_repo_result
+  until: acm_git_repo_result | success
+  retries: 5
+  delay: 5
+
+
+# - hosts: workstation
+#   tasks:
+#     - name: Generate SSH key
+#       command: ssh-keygen -t rsa -b 4096 -C muaminu@deloitte.com
+
+#     - name: Start ssh-agent and add SSH key
+#       command: eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519
+
+#     - name: Get SSH public key
+#       command: cat ~/.ssh/id_ed25519.pub
+#       register: ssh_public_key
+
+#     - name: Add SSH public key to GitHub
+#       uri:
+#         url: https://api.github.com/user/keys
+#         method: POST
+#         user: your_github_username
+#         password: your_github_personal_access_token
+#         body_format: json
+#         body:
+#           title: "{{ inventory_hostname }} SSH key"
+#           key: "{{ ssh_public_key.stdout }}"
+#       register: add_key_result
+#       ignore_errors: yes
+
+#     - name: Create Kubernetes namespace
+#       kubernetes:
+#         api_version: v1
+#         kind: Namespace
+#         name: config-management-system
+
+#     - name: Create Kubernetes secret for Git credentials
+#       kubernetes:
+#         api_version: v1
+#         kind: Secret
+#         name: git-creds
+#         namespace: config-management-system
+#         data:
+#           ssh: "{{ lookup('file', '~/.ssh/id_ed25519') }}"
+#         type: Opaque
+
+#     - name: Configure ACM to use your repository
+#       uri:
+#         url: https://acm.googleapis.com/v1alpha1/projects/{{ gcp_project }}/locations/global/repositories/{{ acm_repo }}/policy
+#         method: PATCH
+#         headers:
+#           Content-Type: "application/json"
+#           Authorization: "Bearer {{ gcp_access_token }}"
+#         body_format: json
+#         body:
+#           spec:
+#             policyController:
+#               git:
+#                 syncRepo: "{{ acm_repo_url }}"
+#                 secretType: ssh
+#                 sshSecret: git-creds
+#                 branch: dev-env
+#                 policyDir: "."

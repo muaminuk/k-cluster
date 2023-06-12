@@ -1,0 +1,5 @@
+---
+- include_tasks: remove-docker-redhat.yml
+  when: ansible_os_family == 'RedHat'
+- include_tasks: remove-docker-debian.yml
+  when: ansible_os_family == 'Debian'

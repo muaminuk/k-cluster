@@ -1,0 +1,67 @@
+---
+- name:  enable the runtime
+  ansible.builtin.shell:
+    cmd: |
+      bmctl enable vmruntime --kubeconfig /{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+  args:
+    executable: /bin/bash
+
+
+
+- name: Install the virtctl client tool
+  ansible.builtin.shell:
+    cmd: |
+       sudo -E bmctl install virtctl
+    executable: /bin/bash
+
+
+
+
+
+
+
+# - name: Point at latest release
+#   ansible.builtin.shell:
+#     cmd: |
+#       export RELEASE=$(curl https://storage.googleapis.com/kubevirt-prow/release/kubevirt/kubevirt/stable.txt)
+#       kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${RELEASE}/kubevirt-operator.yaml --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+#       kubectl apply -f https://github.com/kubevirt/kubevirt/releases/download/${RELEASE}/kubevirt-cr.yaml --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+#     executable: /bin/bash
+
+
+# - name:  download and install krew
+#   ansible.builtin.shell:
+#     cmd: |
+#       (
+#         set -x; cd "$(mktemp -d)" &&
+#         OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+#         ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+#         KREW="krew-${OS}_${ARCH}" &&
+#         curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+#         tar zxvf "${KREW}.tar.gz" &&
+#         ./"${KREW}" install krew
+#       )
+
+#   args:
+#     executable: /bin/bash
+
+
+# - name: add the $HOME/.krew/bin directory to your PATH environment variable
+#   ansible.builtin.shell:
+#     cmd: |
+#       export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+#       source ~/.bashrc
+#   args:
+#     executable: /bin/bash
+
+
+# - name: Install the virtctl client tool as a kubectl plugin
+#   ansible.builtin.shell:
+#     cmd: |
+#       export VERSION=v0.41.0
+#       wget https://github.com/kubevirt/kubevirt/releases/download/${VERSION}/virtctl-${VERSION}-linux-amd64
+#       kubectl krew install virt --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+#   args:
+#     executable: /bin/bash
+
+

@@ -1,0 +1,38 @@
+---
+
+- name: Setup "kubectl" for OS Family
+  ansible.builtin.include_tasks:
+    file: 'setup-kubectl-{{ ansible_os_family | lower }}.yml'
+    apply:
+      become: true
+
+
+# - name: Install kubelet
+#   apt:
+#     name: kubelet
+#     state: present
+
+
+# - name: Enable kubelet service
+#   systemd:
+#     name: kubelet
+#     enabled: yes
+
+
+# - name: Install socat
+#   apt:
+#     name: socat
+#     state: present
+
+
+# - name: Install conntrack
+#   apt:
+#     name: conntrack
+#     state: present
+
+# # need to delete
+# - name: Download and install crictl
+#   unarchive:
+#     src: https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.22.0/crictl-v1.22.0-linux-amd64.tar.gz
+#     dest: /usr/local/bin
+#     remote_src: yes

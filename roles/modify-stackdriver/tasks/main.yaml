@@ -1,0 +1,19 @@
+# Modify Stackdriver object, to enable prometheus
+---
+- name: Patch Stackdriver object to eneable enableGMPForApplications
+  command: "kubectl --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig patch stackdriver stackdriver --type='json' -p='[{op: replace, path: /spec/{{enable_application}}, value: {{enable_value}} }]' -n kube-system"
+  register: result
+
+- name: Display result
+  debug:
+    var: result
+
+
+- name: Patch Stackdriver object to enable enableCloudLoggingForApplications
+  command: "kubectl --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig patch stackdriver stackdriver --type='json' -p='[{op: replace, path: /spec/{{enable_application_clfa}}, value: {{enable_value}} }]' -n kube-system"
+  register: result
+
+- name: Display result
+  debug:
+    var: result
+

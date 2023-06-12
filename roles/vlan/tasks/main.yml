@@ -1,0 +1,10 @@
+---
+
+- name: configure Vlan on a single host
+  shell: |
+    set -x
+    sudo ip link add vxlan0 type vxlan id 42 dev ens4 dstport 0
+    sudo bridge fdb append to 00:00:00:00:00:00 dst 10.0.0.12 dev vxlan0
+    sudo bridge fdb append to 00:00:00:00:00:00 dst 10.0.0.14 dev vxlan0
+    sudo ip addr add "{{ cluster_vlan_ip }}" dev vxlan0
+    sudo ip link set up dev vxlan0

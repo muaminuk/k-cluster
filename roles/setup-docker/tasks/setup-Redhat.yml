@@ -1,0 +1,37 @@
+---
+
+- name: Remove Previous Docker Versions [RedHat / CentOS]
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker
+    - docker-client
+    - docker-client-latest
+    - docker-common
+    - docker-latest
+    - docker-latest-logrotate
+    - docker-logrotate
+    - docker-engine
+    - podman-manpages
+
+- name: Remove Package Dependencies No Longer Required [RedHat / CentOS]
+  ansible.builtin.dnf:
+    autoremove: yes
+
+- name: Add "docker-ce" Package Repository [RedHat / CentOS]
+  ansible.builtin.command:
+    cmd: 'dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo'
+    warn: no
+  changed_when: false
+
+- name: Install Docker Engine [RedHat / CentOS]
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-ce-rootless-extras
+    - docker-scan-plugin

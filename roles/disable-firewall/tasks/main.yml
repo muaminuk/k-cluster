@@ -1,0 +1,6 @@
+---
+
+- include_tasks: disable-firewall-redhat.yml
+  when: ansible_os_family == 'RedHat'
+- include_tasks: disable-firewall-debian.yml
+  when: ansible_os_family == 'Debian'

@@ -1,0 +1,22 @@
+---
+
+- name: Create Anthos Cluster
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      # export GOOGLE_APPLICATION_CREDENTIALS="{{ gcp_keys_dir }}/{{ ansible_service_account }}.json"
+      bmctl create cluster -c "{{ cluster_name }}" --quiet 
+  args:
+    executable: /bin/bash
+  register: create_cluster
+  failed_when: false
+  changed_when: false
+
+- name: Check the Previous Task
+  ansible.builtin.debug:
+    msg: "{{ create_cluster.stdout_lines + create_cluster.stderr_lines }}"
+  failed_when: create_cluster.rc != 0
+  when:
+    - create_cluster.stdout_lines is defined
+    - create_cluster.stderr_lines is defined
+

@@ -1,0 +1,33 @@
+
+---
+
+- name: Remove Docker Packages [RedHat / CentOS]
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker
+    - docker-client
+    - docker-client-latest
+    - docker-common
+    - docker-latest
+    - docker-latest-logrotate
+    - docker-logrotate
+    - docker-engine
+    - podman-manpages
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-ce-rootless-extras
+    - docker-scan-plugin
+
+- name: Remove Package Dependencies No Longer Required [RedHat / CentOS]
+  ansible.builtin.dnf:
+    autoremove: yes
+
+- name: Remove "docker-ce" Package Repository [RedHat / CentOS]
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/etc/yum.repos.d/docker-ce.repo"

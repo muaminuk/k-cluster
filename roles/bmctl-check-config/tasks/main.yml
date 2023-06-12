@@ -1,0 +1,21 @@
+---
+
+- name: Check "bmctl" Configuration for Anthos Cluster
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      export GOOGLE_APPLICATION_CREDENTIALS="{{ gcp_keys_dir }}/{{ ansible_service_account }}.json"
+      bmctl check config -c "{{ cluster_name }}" --quiet
+  args:
+    executable: /bin/bash
+  register: cluster_check_fail
+  failed_when: false
+  changed_when: false
+
+- name: Check the Previous Task
+  ansible.builtin.debug:
+    msg: "{{ cluster_check_fail.stdout_lines + cluster_check_fail.stderr_lines }}"
+  failed_when: cluster_check_fail.rc != 0
+  when:
+    - cluster_check_fail.stdout_lines is defined
+    - cluster_check_fail.stderr_lines is defined

@@ -1,0 +1,16 @@
+---
+- name: copy cloud-console-reader.yml to Workstation 
+  ansible.builtin.template:  
+    src: cloud-console-reader.yml.j2
+    dest: /{{bmctl_workspace_dir}}/cloud-console-reader.yml
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: u=rw,g=rw,o=rw
+
+- name: copy secret_ksa-token.yml to Workstation
+  ansible.builtin.template:
+    src: secret-ksa-token.yml.j2
+    dest: /{{bmctl_workspace_dir}}/secret_ksa-token.yml
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: u=rw,g=rw,o=rw

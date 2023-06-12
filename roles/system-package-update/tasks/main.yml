@@ -1,0 +1,5 @@
+---
+- include_tasks: system-package-update-redhat.yml
+  when: ansible_os_family == 'RedHat'
+- include_tasks: system-package-update-debian.yml
+  when: ansible_os_family == 'Debian'

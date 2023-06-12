@@ -1,0 +1,41 @@
+---
+
+- name: Remove Unwanted Time Synchronisation Packages [Debian / Ubuntu]
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - ntp
+    - chrony
+
+- name: Remove Package Dependencies No Longer Required [Debian / Ubuntu]
+  ansible.builtin.apt:
+    autoremove: yes
+
+- name: Install Time Synchronisation Packages [Debian / Ubuntu]
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - systemd-timesyncd
+    
+- name: Enable Time Synchronisation Service [Debian / Ubuntu]
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    enabled: yes
+
+- name: Configure Time Synchronisation Service [Debian / Ubuntu]
+  ansible.builtin.template:
+    src: timesyncd.conf.j2
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+  register: configuration
+
+- name: Restart Time Synchronisation Service [Debian / Ubuntu]
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: restarted
+  when: configuration.changed
+  tags: ['skip_ansible_lint']

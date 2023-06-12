@@ -1,0 +1,29 @@
+---
+
+- name: Remove Docker Packages [Debian / Ubuntu]
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker
+    - docker-engine
+    - docker.io
+    - containerd
+    - runc
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-ce-rootless-extras
+    - docker-scan-plugin
+
+- name: Remove Package Dependencies No Longer Required [Debian / Ubuntu]
+  ansible.builtin.apt:
+    autoremove: yes
+
+- name: Remove Docker Package Repository [Debian / Ubuntu]
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/etc/apt/sources.list.d/docker.list"
+    - "/usr/share/keyrings/docker-archive-keyring.gpg"

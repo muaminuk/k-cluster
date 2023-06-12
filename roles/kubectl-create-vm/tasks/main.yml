@@ -1,0 +1,16 @@
+---
+
+- name: Write the "vm" Configuration YAML File
+  ansible.builtin.template:
+    src: create-vm.yml.j2
+    dest: "{{ bmctl_workspace_dir }}/{{ cluster_name }}/{{ name_vm }}.yml"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: u=rw,g=rw,o=r
+
+- name: create VM
+  ansible.builtin.shell:
+    cmd: |
+       kubectl create -f {{ bmctl_workspace_dir }}/{{ cluster_name }}/{{ name_vm }}.yml --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+  args:
+    executable: /bin/bash

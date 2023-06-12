@@ -1,0 +1,142 @@
+---
+# - name: set secrets name as enviroment variables
+#   ansible.builtin.shell:
+#     cmd: |
+#       set -o pipefail
+#       export KUBECONFIG="{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig"
+#   args:
+#     executable: /bin/bash
+
+# - name: Adding KUBECONFIG variable
+#   copy:
+#     content: export KUBECONFIG="{{ gcp_keys_dir }}/{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig"
+#     dest: /etc/profile.d/kubeconfig.s
+
+
+- name: Copy kubeconfig file to shared location
+  command: cp "{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig" /etc/kubernetes/kubeconfig
+    
+- name: Set ownership of kubeconfig file
+  file:
+    path: /etc/kubernetes/kubeconfig
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Set KUBECONFIG environment variable in profile file
+  lineinfile:
+    path: /etc/.profile
+    line: 'export KUBECONFIG=/etc/kubernetes/kubeconfig'
+    state: present
+    create: true
+
+- name: Update bashrc for kubeconfig
+  lineinfile:
+    dest: /root/.bashrc
+    line: export KUBECONFIG="{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig"
+    owner: root
+
+- name: Update profile for kubeconfig
+  lineinfile:
+    dest: /root/.profile
+    line: export KUBECONFIG="{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig"
+    owner: root
+
+- name: Update environment for kubeconfig
+  lineinfile:
+    dest: /etc/environment
+    line: export KUBECONFIG="{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig"
+    owner: root
+
+- name: Reload profile bashrc
+  shell: source /root/.bashrc
+  args:
+    executable: /bin/bash
+  register: reload_bash
+  changed_when: reload_bash.rc == 0
+
+- name: Reload profile file
+  shell: source /root/.profile
+  args:
+    executable: /bin/bash
+  register: reload_profile
+  changed_when: reload_profile.rc == 0
+
+- name: Reload profile Environment
+  shell: source /etc/environment
+  args:
+    executable: /bin/bash
+  register: reload_env
+  changed_when: reload_env.rc == 0
+
+
+- name: set secrets name as enviroment variables
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      KSA_NAME={{KSA_NAME}}
+      SECRET_NAME={{SECRET_NAME}}
+      VIEW_BINDING={{VIEW_BINDING}}
+      CLOUD_CONSOLE_READER_BINDING_NAME={{CLOUD_CONSOLE_READER_BINDING_NAME}}
+  args:
+    executable: /bin/bash
+
+- name: kubectl generate cluster-role rbac policy
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      kubectl apply -f {{bmctl_workspace_dir}}/cloud-console-reader.yml --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+  args:
+    executable: /bin/bash
+
+
+- name: create auth ksa view cloud-console-reader 
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      kubectl create serviceaccount {{KSA_NAME}} --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+      kubectl create clusterrolebinding {{VIEW_BINDING}} --clusterrole view --serviceaccount default:{{ KSA_NAME }} --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+      kubectl create clusterrolebinding {{CLOUD_CONSOLE_READER_BINDING_NAME}} --clusterrole cloud-console-reader --serviceaccount default:{{ KSA_NAME }} --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+  args:
+    executable: /bin/bash
+
+- name: apply secret.yml file
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      kubectl apply -f {{bmctl_workspace_dir}}/secret_ksa-token.yml --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+  args:
+    executable: /bin/bash
+
+- name: Get KSA Token Name
+  ansible.builtin.shell:
+    cmd: |
+      # kubectl --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig get secret|awk '{ print $1 }'|grep ksa-name
+      kubectl get secret secret-name -o jsonpath='{$.data.token}' | base64 --decode
+  register: token_name 
+
+# - name: Debug Token Name
+#   debug:
+#     var: token_name.stdout
+
+# - name: Set Token Name Variable
+#   set_fact:
+#     secret_token: "{{ token_name.stdout }}"
+
+# - name: Disply token
+#   command: "kubectl --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig get secret {{ secret_token }} -o 'jsonpath={$.data.token}'"
+#     #command: "kubectl get secret secret-name -o jsonpath='{$.data.token}' | base64 --decode"
+#   register: token
+
+# - name: Display Token
+#   set_fact:
+#     token: "{{ token }}"
+
+# - name: Decode Token
+#   set_fact: 
+#     decoded_token: "{{ token.stdout|b64decode }}"
+
+# - name: Display Decoded Token
+#   debug: 
+#     var: decoded_token
+

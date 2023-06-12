@@ -1,0 +1,21 @@
+
+---
+
+- name: Create Directory for Service Account Keys
+  ansible.builtin.file:
+    path: "{{ gcp_keys_dir }}"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Retrieve and Copy Service Account Key
+  ansible.builtin.include_tasks: copy-service-account-key.yml
+  with_items:
+    - "{{ ansible_service_account }}"
+    - "{{ anthos_container_registry_service_account }}"
+    - "{{ anthos_connect_agent_service_account }}"
+    - "{{ anthos_connect_register_service_account }}"
+    - "{{ anthos_logging_monitoring_service_account }}"
+  loop_control:
+    loop_var: copy_service_account_key

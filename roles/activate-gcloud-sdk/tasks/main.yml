@@ -1,0 +1,36 @@
+---
+
+- name: Add GOOGLE_APPLICATION_CREDENTIALS Environment Variable to ".bashrc"
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    regexp: "^export GOOGLE_APPLICATION_CREDENTIALS="
+    line: "export GOOGLE_APPLICATION_CREDENTIALS=\"{{ gcp_keys_dir }}/{{ item }}.json\""
+  with_items:
+    - "{{ ansible_service_account }}"
+
+- name: Activate Ansible Service Account for "login_user"
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      gcloud auth activate-service-account "{{ item }}@{{ gcp_project_id }}.iam.gserviceaccount.com" --key-file="{{ item }}.json"
+      gcloud config set project "{{ gcp_project_id }}"
+    chdir: "{{ gcp_keys_dir }}"
+  args:
+    executable: /bin/bash
+  changed_when: false
+  with_items:
+    - "{{ ansible_service_account }}"
+
+- name: Activate Ansible Service Account for "root"
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      gcloud auth activate-service-account "{{ item }}@{{ gcp_project_id }}.iam.gserviceaccount.com" --key-file="{{ item }}.json"
+      gcloud config set project "{{ gcp_project_id }}"
+    chdir: "{{ gcp_keys_dir }}"
+  args:
+    executable: /bin/bash
+  become: true
+  changed_when: false
+  with_items:
+    - "{{ ansible_service_account }}"

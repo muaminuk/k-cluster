@@ -1,0 +1,7 @@
+---
+
+- name: Stop & Disable Firewalld Service [RedHat / CentOS]
+  ansible.builtin.systemd:
+    name: firewalld
+    enabled: no
+    state: stopped

@@ -1,0 +1,13 @@
+
+---
+
+- name: FAIL if the Anthos Cluster is Already Registered within the Google Cloud Project
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      gcloud container hub memberships describe "{{ cluster_name }}"
+  args:
+    executable: /bin/bash
+  register: cluster_exists
+  failed_when: cluster_exists.rc == 0
+  changed_when: false

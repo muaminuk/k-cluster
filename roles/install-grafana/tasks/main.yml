@@ -1,0 +1,34 @@
+---
+
+#- name: Install Helm
+# shell: |
+#   helm repo add grafana https://grafana.github.io/helm-charts
+#   helm repo update
+#   kubectl create namespace grafana --kubeconfig {{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+#   helm install grafana grafana/grafana --namespace grafana
+
+- name: install grafana
+  shell: |
+    kubectl --kubeconfig "{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig" create namespace grafana
+    kubectl --kubeconfig "{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig" create deployment grafana --namespace=grafana --image=grafana/grafana
+
+# - name: Add Grafana repository to Helm
+#   command: helm repo add grafana https://grafana.github.io/helm-charts
+
+# - name: Update Helm repository
+#   command: helm repo update
+
+# - name: Create Grafana namespace
+#   kubernetes.core.v1.namespace:
+#     name: grafana
+#     state: present
+
+# - name: Install Grafana with Helm
+#   helm:
+#     name: grafana
+#     chart: grafana/grafana
+#     namespace: grafana
+
+# - name: Forward Grafana service to localhost
+#   command: kubectl port-forward service/grafana 3000:80 -n grafana
+

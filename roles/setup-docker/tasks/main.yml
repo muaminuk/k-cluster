@@ -1,0 +1,36 @@
+---
+- include_tasks: setup-Redhat.yml
+  when: ansible_os_family == 'RedHat'
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: Start Docker Service
+  ansible.builtin.shell:
+    cmd: |
+      systemctl stop docker.service
+      systemctl start docker.service
+      systemctl enable docker.service
+  args:
+    executable: /bin/bash
+
+
+
+# - name: Start Docker Service
+#   ansible.builtin.systemd:
+#     name: docker
+#     enabled: yes
+#     state: started
+#   become: true
+
+- name: Ensure "docker" User Group Exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+  become: true
+
+- name: Add the "login_user" to the Docker Group
+  ansible.builtin.user:
+    name: "{{ login_user }}"
+    groups: docker
+    append: yes
+  become: true

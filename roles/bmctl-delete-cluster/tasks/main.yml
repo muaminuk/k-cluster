@@ -1,0 +1,19 @@
+
+---
+
+- name: Delete cluster
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      bmctl reset --cluster "{{ cluster_name }}"  --kubeconfig /{{bmctl_workspace_dir}}/{{ cluster_name }}/{{ cluster_name }}-kubeconfig
+  args:
+    executable: /bin/bash
+
+
+- name: Delete the BMCTL Directories
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      rm -rf {{bmctl_workspace_dir}}/bmctl-workspace
+  args:
+    executable: /bin/bash

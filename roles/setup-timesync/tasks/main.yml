@@ -1,0 +1,19 @@
+---
+
+- include_tasks: setup-timesync-redhat.yml
+  when: ansible_os_family == 'RedHat'
+- include_tasks: setup-timesync-debian.yml
+  when: ansible_os_family == 'Debian'
+
+
+- name: Configure the System Timezone
+  ansible.builtin.command:
+    cmd: 'timedatectl set-timezone "{{ timezone }}"'
+  become: true
+  changed_when: false
+
+- name: Enable the Network Time Synchronisation
+  ansible.builtin.command:
+    cmd: 'timedatectl set-ntp true'
+  become: true
+  changed_when: false

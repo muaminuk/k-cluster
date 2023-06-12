@@ -1,0 +1,69 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "false"
+gcrKeyPath: "{{ gcp_keys_dir }}/{{ anthos_container_registry_service_account }}.json"
+sshPrivateKeyPath: "{{ ansible_user_dir }}/.ssh/id_rsa"
+gkeConnectAgentServiceAccountKeyPath: "{{ gcp_keys_dir }}/{{ anthos_connect_agent_service_account }}.json"
+gkeConnectRegisterServiceAccountKeyPath: "{{ gcp_keys_dir }}/{{ anthos_connect_register_service_account }}.json"
+cloudOperationsServiceAccountKeyPath: "{{ gcp_keys_dir }}/{{ anthos_logging_monitoring_service_account }}.json"
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cluster-{{ cluster_name }}
+---
+apiVersion: baremetal.cluster.gke.io/v1
+kind: Cluster
+metadata:
+  name: {{ cluster_name }}
+  namespace: cluster-{{ cluster_name }}
+spec:
+  type: {{ cluster_type }}
+  profile: {{ cluster_profile }}
+  anthosBareMetalVersion: {{ bmctl_version }}
+  gkeConnect:
+    projectID: {{ gcp_project_id }}
+  controlPlane:
+    nodePoolSpec:
+      nodes:
+      - address: 192.168.20.34
+      - address: 192.168.20.35
+      - address: 192.168.20.36
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 10.16.0.0/16
+    services:
+      cidrBlocks:
+      - 10.96.0.0/20
+  loadBalancer:
+    mode: bundled
+    ports:
+      controlPlaneLBPort: 443
+    vips:
+      controlPlaneVIP: 192.168.20.70
+      ingressVIP: 192.168.20.72
+    addressPools:
+    - name: pool1
+      addresses:
+      - 192.168.20.71-192.168.20.72
+  clusterOperations:
+    projectID: {{ gcp_project_id }}
+    location: {{ cluster_location }}
+   # disableCloudAuditLogging: false
+   # enableApplication: true
+  storage:
+    lvpNodeMounts:
+      path: /mnt/localpv-disk
+      storageClassName: local-disks
+    lvpShare:
+      path: /mnt/localpv-share
+      storageClassName: local-shared
+      numPVUnderSharedPath: 5
+  nodeConfig:
+    podDensity:
+      maxPodsPerNode: 250
+    containerRuntime: {{ container_runtime }}
+  #kubevirt:
+    #useEmulation: false
+  nodeAccess:
+    loginUser: {{ login_user }}

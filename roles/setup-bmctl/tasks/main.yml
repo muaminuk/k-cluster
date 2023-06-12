@@ -1,0 +1,50 @@
+
+#- name: Create Temp Directory
+  #ansible.builtin.tempfile:
+    #state: directory
+      #suffix: .bmctl
+      #register: tmpdir
+    #changed_when: false
+- name: Download bmctl , Make Executable and Move to "/usr/sbin"
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      cd ~
+      mkdir baremetal
+      cd baremetal
+      #gsutil cp gs://anthos-baremetal-release/bmctl/{{ bmctl_version }}/linux-amd64/bmctl .
+      gsutil cp gs://anthos-baremetal-release/bmctl/{{ bmctl_version }}/linux-amd64/bmctl bmctl  .
+      chmod a+x bmctl
+      mv -f bmctl /usr/sbin/
+  args:
+    creates: /usr/sbin/bmctl
+    executable: /bin/bash
+  become: true
+
+    #- name: Download bmctl to Temp Directory, Make Executable and Move to "/usr/sbin"
+    #ansible.builtin.shell:
+    #cmd: |
+    # set -o pipefail
+    # gsutil cp gs://anthos-baremetal-release/bmctl/{{ bmctl_version }}/linux-amd64/bmctl .
+    # chmod a+x bmctl
+      # mv -f bmctl /usr/sbin/
+      #chdir: "{{ tmpdir.path }}"
+      #args:
+      #creates: /usr/sbin/bmctl
+      #executable: /bin/bash
+      #become: true
+
+# - name: Download bmctl to Temp Directory, Make Executable and Move to "/usr/sbin"
+#   command: |
+#     gsutil cp gs://anthos-baremetal-release/bmctl/1.12.2/linux-amd64/bmctl bmctl
+#     chmod a+x bmctl
+
+  # args:
+  #   executable: /bin/bash
+  # become: true
+
+    #- name: Cleanup Temp Directory
+    #ansible.builtin.file:
+    #path: "{{ tmpdir.path }}"
+    #state: absent
+    #changed_when: false
